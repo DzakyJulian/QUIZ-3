@@ -17,7 +17,7 @@ if home == "Start":
 
         if pilihan == "1":
             print("Integral Tak Tentu")
-            soal = input("Masukkan soal: ")
+            soal = input("Masukkan so   al: ")
             soalFix = sympify(soal)
 
             hasil1 = integrate(soalFix, x)
