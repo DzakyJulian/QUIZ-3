@@ -1,6 +1,6 @@
 from pathlib import Path
 from tkinter import *
-from sympy import symbols, integrate, sympify
+from sympy import symbols, integrate
 from sympy.parsing.sympy_parser import parse_expr
 
 OUTPUT_PATH = Path(__file__).parent
@@ -8,9 +8,6 @@ ASSETS_PATH = Path('./assets')
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
-
-def addition_2num(num1, num2):
-    return num1 + num2
 
 def update_result():
     definiteIntegralPageCanvas.itemconfig(res_display, text=result.get())
@@ -249,9 +246,9 @@ num_entry = Entry(
     textvariable=q_input
 )
 num_entry.place(
-    x=148.0,
+    x=160.0,
     y=230.0,
-    width=268.0,
+    width=258.0,
     height=42.0
 )
 
