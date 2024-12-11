@@ -2,6 +2,7 @@ from pathlib import Path
 from tkinter import *
 from sympy import symbols, integrate
 from sympy.parsing.sympy_parser import parse_expr
+from sympy import latex, pprint
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = Path('./assets')
@@ -13,11 +14,18 @@ def update_result():
     definiteIntegralPageCanvas.itemconfig(res_display, text=result.get())
 
 def calculate_integral():
+    calculation_result = None
+    x = symbols('x')
+    
     if current_state.get() == "definite":
-        result.set(integrate(parse_expr(q_input.get(), transformations="all"), (x, a.get(), b.get())))
+        calculation_result = integrate(parse_expr(q_input.get(), transformations="all"), (x, a.get(), b.get()))
+        readable_result = pprint(calculation_result)
+        print(pprint(readable_result))
         update_result()
     else:
-        result.set(f"{integrate(parse_expr(q_input.get(), transformations="all"), x)} + C")
+        calculation_result = integrate(parse_expr(q_input.get(), transformations="all"), x)
+        readable_result = latex(calculation_result)
+        print(readable_result)
         update_result()
 
 # Initialize main window
