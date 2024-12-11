@@ -1,7 +1,9 @@
 from pathlib import Path
 from tkinter import *
-from sympy import symbols, integrate
+from sympy import symbols, integrate, sstr
 from sympy.parsing.sympy_parser import parse_expr
+from sympy.integrals.manualintegrate import integral_steps
+from step_by_step import steps_explanation
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = Path('./assets')
@@ -12,48 +14,71 @@ def relative_to_assets(path: str) -> Path:
 
 # Fungsi untuk mengupdate hasil setelah mengklik tombol 'Calculate'
 def update_result():
-    definiteIntegralPageCanvas.itemconfig(res_display, text=result.get())
+    mainFrameCanvas.itemconfig(res_display, text=result.get())
 
 # Fungsi untuk mengubah hasil menjadi lebih rapih
-def pretty_result(integration_result: str):
+def pretty_integral_result(integration_result: str):
     formatted_result = integration_result.replace('**', '^')
     formatted_result = formatted_result.replace("*", "")
     return formatted_result
 
+# Fungsi untuk membuka jendela baru untuk melihat langkah-langkah integrasi
+def show_steps_window():
+    newWindow = Toplevel(mainFrame)
+    newWindow.title("Step by step")
+
+    # properti text langkah2
+    steps_text = Text(newWindow, font="Consolas 12")
+    steps_text.insert(INSERT, result_steps.get())
+    steps_text.pack()
+
+
 # Fungsi menghitung integral yang diinput oleh user
 def calculate_integral():
+    x = symbols('x')
+    
     if current_state.get() == "definite":
-        integration_result = str(integrate(parse_expr(q_input.get(), transformations="all"), (x, a.get(), b.get())))
-        result.set(pretty_result(integration_result))
+        parsed_input = parse_expr(q_input.get(), transformations="all")
+
+        integration_result = str(integrate(parsed_input, (x, a.get(), b.get())))
+        step_by_step = sstr(integral_steps(parsed_input, x))
+        
+        result_steps.set(step_by_step)
+        result.set(pretty_integral_result(integration_result))
         update_result()
     else:
-        integration_result = str(integrate(parse_expr(q_input.get(), transformations="all"), x))
-        result.set(pretty_result(integration_result) + "+ C")
+        parsed_input = parse_expr(q_input.get(), transformations="all")
+
+        integration_result = str(integrate(parsed_input, x))
+        step_by_step = sstr(integral_steps(parsed_input, x))
+        
+        result_steps.set(step_by_step)
+        result.set(pretty_integral_result(integration_result) + "+ C")
         update_result()
 
 # Initialize main window
 window = Tk()
-window.geometry("443x527")
+window.geometry("443x530")
 window.title("Integral Calculator")
 window.configure(bg="#FFFFFF")
 
-# Initialize variables for the upper limit, lower limit, input, and result
+# Initialize variables for the upper limit, lower limit, input, step by step, and result
 b = IntVar()  # upper limit
 a = IntVar()  # lower limit
 x = symbols("x") # x symbol for sympy integration
 q_input = StringVar()  # input soal
+result_steps = StringVar() # langkah integrasi
 result = StringVar()  # hasil
 
 # Frames for pages
-definiteIntegralPage = Frame(window, bg="#FFFFFF")
-definiteIntegralPage.place(x=0, y=0, width=443, height=527)
+mainFrame = Frame(window, bg="#FFFFFF")
+mainFrame.place(x=0, y=0, width=443, height=527)
 
 # Initialize current state
-current_state = StringVar(definiteIntegralPage, "definite")
+current_state = StringVar(mainFrame, "definite")
 
-""" --------------- Definite Integral Page ----------------------- """
-definiteIntegralPageCanvas = Canvas(
-    definiteIntegralPage,
+mainFrameCanvas = Canvas(
+    mainFrame,
     bg="#FFFFFF",
     height=527,
     width=443,
@@ -61,10 +86,10 @@ definiteIntegralPageCanvas = Canvas(
     highlightthickness=0,
     relief="ridge"
 )
-definiteIntegralPageCanvas.place(x=0, y=0)
+mainFrameCanvas.place(x=0, y=0)
 
 # 'Hello Integralian' text
-definiteIntegralPageCanvas.create_text(
+mainFrameCanvas.create_text(
     23.0,
     22.0,
     anchor="nw",
@@ -74,7 +99,7 @@ definiteIntegralPageCanvas.create_text(
 )
 
 # 'Integral calculator' text
-definiteIntegralPageCanvas.create_text(
+mainFrameCanvas.create_text(
     23.0,
     48.0,
     anchor="nw",
@@ -84,7 +109,7 @@ definiteIntegralPageCanvas.create_text(
 )
 
 # 'Choose one' text
-definiteIntegralPageCanvas.create_text(
+mainFrameCanvas.create_text(
     23.0,
     104.0,
     anchor="nw",
@@ -94,7 +119,7 @@ definiteIntegralPageCanvas.create_text(
 )
 
 # 'Result' text
-definiteIntegralPageCanvas.create_text(
+mainFrameCanvas.create_text(
     23.0,
     388.0,
     anchor="nw",
@@ -104,19 +129,19 @@ definiteIntegralPageCanvas.create_text(
 )
 
 # '. . .' result text
-res_display = definiteIntegralPageCanvas.create_text(
+res_display = mainFrameCanvas.create_text(
     23.0,
-    450.0,
+    440.0,
     text=result.get(),
     anchor="nw",
     fill="#000000",
     font=("Inter Bold", 24 * -1)
 )
 
+""" Button and Entries """
 # Button: Indefinite Integral
 indef_integral_button_image = PhotoImage(file=relative_to_assets("indef_integral_button.png"))
 indef_integral_button = Button(
-    master=definiteIntegralPage,
     image=indef_integral_button_image,
     borderwidth=0,
     highlightthickness=0,
@@ -124,10 +149,10 @@ indef_integral_button = Button(
         current_state.set("indefinite"),
         upper_limit_entry.place_forget(),
         lower_limit_entry.place_forget(),
-        definiteIntegralPageCanvas.coords(integral_symbol, 49, 248),
-        definiteIntegralPageCanvas.coords(integral_symbol, 100, 248),
-        definiteIntegralPageCanvas.itemconfig(upper_limit_entry_bg, state="hidden"),
-        definiteIntegralPageCanvas.itemconfig(lower_limit_entry_bg, state="hidden")
+        mainFrameCanvas.coords(integral_symbol, 49, 248),
+        mainFrameCanvas.coords(integral_symbol, 100, 248),
+        mainFrameCanvas.itemconfig(upper_limit_entry_bg, state="hidden"),
+        mainFrameCanvas.itemconfig(lower_limit_entry_bg, state="hidden")
     ),
     relief="flat"
 )
@@ -141,15 +166,14 @@ indef_integral_button.place(
 # Button: Definite Integral
 def_integral_button_image = PhotoImage(file=relative_to_assets("defin_integral_button.png"))
 def_integral_button = Button(
-    master=definiteIntegralPage,
     image=def_integral_button_image,
     borderwidth=0,
     highlightthickness=0,
     command=lambda: (
         current_state.set("definite"),
-        definiteIntegralPageCanvas.coords(integral_symbol, 49, 248),
-        definiteIntegralPageCanvas.itemconfig(upper_limit_entry_bg, state="normal"),
-        definiteIntegralPageCanvas.itemconfig(lower_limit_entry_bg, state="normal"),
+        mainFrameCanvas.coords(integral_symbol, 49, 248),
+        mainFrameCanvas.itemconfig(upper_limit_entry_bg, state="normal"),
+        mainFrameCanvas.itemconfig(lower_limit_entry_bg, state="normal"),
         upper_limit_entry.place(
             x = 88.0,
             y = 203.0,
@@ -175,7 +199,6 @@ def_integral_button.place(
 # Button: Calculate
 calculate_button_image = PhotoImage(file=relative_to_assets("calculate_button.png"))
 calculate_button = Button(
-    master=definiteIntegralPage,
     image=calculate_button_image,
     borderwidth=0,
     highlightthickness=0,
@@ -191,7 +214,7 @@ calculate_button.place(
 
 # Integral Symbol
 integral_symbol_image = PhotoImage(file=relative_to_assets("integrate_symbol.png"))
-integral_symbol = definiteIntegralPageCanvas.create_image(
+integral_symbol = mainFrameCanvas.create_image(
     49.0,
     248.0,
     image=integral_symbol_image
@@ -199,18 +222,18 @@ integral_symbol = definiteIntegralPageCanvas.create_image(
 
 # Upper Limit Entry
 upper_limit_entry_image = PhotoImage(file=relative_to_assets("entry_2.png"))
-upper_limit_entry_bg = definiteIntegralPageCanvas.create_image(
+upper_limit_entry_bg = mainFrameCanvas.create_image(
     99.0,
     217.0,
     image=upper_limit_entry_image
 )
 upper_limit_entry = Entry(
-    master=definiteIntegralPage,
     bd=0,
     bg="#FFFFFF",
     fg="#000716",
     highlightthickness=0,
-    textvariable=b
+    textvariable=b,
+    font="Inter, 10"
 )
 upper_limit_entry.place(
     x = 88.0,
@@ -221,18 +244,18 @@ upper_limit_entry.place(
 
 # Lower Limit Entry
 lower_limit_entry_image = PhotoImage(file=relative_to_assets("entry_2.png"))
-lower_limit_entry_bg = definiteIntegralPageCanvas.create_image(
+lower_limit_entry_bg = mainFrameCanvas.create_image(
     99.0,
     273.0,
     image=lower_limit_entry_image
 )
 lower_limit_entry = Entry(
-    master=definiteIntegralPage,
     bd=0,
     bg="#FFFFFF",
     fg="#000716",
     highlightthickness=0,
-    textvariable=a
+    textvariable=a,
+    font="Inter, 10"
 )
 lower_limit_entry.place(
     x = 88.0,
@@ -243,24 +266,36 @@ lower_limit_entry.place(
 
 # Input Entry
 num_entry_image = PhotoImage(file=relative_to_assets("entry_1.png"))
-num_entry_bg = definiteIntegralPageCanvas.create_image(
+num_entry_bg = mainFrameCanvas.create_image(
     282.0,
     251.0,
     image=num_entry_image
 )
 num_entry = Entry(
-    master=definiteIntegralPage,
     bd=0,
     bg="#FFFFFF",
     fg="#000716",
     highlightthickness=0,
-    textvariable=q_input
+    textvariable=q_input,
+    font="Inter, 12"
 )
 num_entry.place(
     x=160.0,
     y=230.0,
     width=258.0,
     height=42.0
+)
+
+# Step by Step Button
+show_steps_button = Button(
+    text="Show step by step",
+    command=lambda: show_steps_window()
+)
+show_steps_button.place(
+    x=23.0,
+    y=495.0,
+    width=397.0,
+    height=25.0
 )
 
 # Finalize the window
