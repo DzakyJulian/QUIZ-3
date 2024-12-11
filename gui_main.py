@@ -1,26 +1,34 @@
 from pathlib import Path
 from tkinter import *
-from sympy import symbols, integrate, sympify
+from sympy import symbols, integrate
 from sympy.parsing.sympy_parser import parse_expr
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = Path('./assets')
 
+# Fungsi untuk mengakses asset-asset yang ada
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
 
-def addition_2num(num1, num2):
-    return num1 + num2
-
+# Fungsi untuk mengupdate hasil setelah mengklik tombol 'Calculate'
 def update_result():
     definiteIntegralPageCanvas.itemconfig(res_display, text=result.get())
 
+# Fungsi untuk mengubah hasil menjadi lebih rapih
+def pretty_result(integration_result: str):
+    formatted_result = integration_result.replace('**', '^')
+    formatted_result = formatted_result.replace("*", "")
+    return formatted_result
+
+# Fungsi menghitung integral yang diinput oleh user
 def calculate_integral():
     if current_state.get() == "definite":
-        result.set(integrate(parse_expr(q_input.get(), transformations="all"), (x, a.get(), b.get())))
+        integration_result = str(integrate(parse_expr(q_input.get(), transformations="all"), (x, a.get(), b.get())))
+        result.set(pretty_result(integration_result))
         update_result()
     else:
-        result.set(f"{integrate(parse_expr(q_input.get(), transformations="all"), x)} + C")
+        integration_result = str(integrate(parse_expr(q_input.get(), transformations="all"), x))
+        result.set(pretty_result(integration_result) + "+ C")
         update_result()
 
 # Initialize main window
@@ -249,12 +257,11 @@ num_entry = Entry(
     textvariable=q_input
 )
 num_entry.place(
-    x=148.0,
+    x=160.0,
     y=230.0,
-    width=268.0,
+    width=258.0,
     height=42.0
 )
-
 
 # Finalize the window
 window.resizable(False, False)
