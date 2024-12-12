@@ -3,7 +3,7 @@ from tkinter import *
 from sympy import symbols, integrate, sstr
 from sympy.parsing.sympy_parser import parse_expr
 from sympy.integrals.manualintegrate import integral_steps
-from step_by_step import steps_explanation
+# from step_by_step import steps_explanation
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = Path('./assets')
@@ -80,11 +80,8 @@ current_state = StringVar(mainFrame, "definite")
 mainFrameCanvas = Canvas(
     mainFrame,
     bg="#FFFFFF",
-    height=527,
     width=443,
-    bd=0,
-    highlightthickness=0,
-    relief="ridge"
+    height=527,
 )
 mainFrameCanvas.place(x=0, y=0)
 
@@ -95,7 +92,7 @@ mainFrameCanvas.create_text(
     anchor="nw",
     text="Hello, Integralian!",
     fill="#000000",
-    font=("Consolas Bold", 16 * -1),
+    font=("Consolas Bold", 12),
 )
 
 # 'Integral calculator' text
@@ -105,7 +102,7 @@ mainFrameCanvas.create_text(
     anchor="nw",
     text="Integral Calculator",
     fill="#000000",
-    font=("Consolas Bold", 24 * -1),
+    font=("Consolas Bold", 18),
 )
 
 # 'Choose one' text
@@ -115,7 +112,7 @@ mainFrameCanvas.create_text(
     anchor="nw",
     text="Choose one:",
     fill="#000000",
-    font=("Inter", 16 * -1)
+    font=("Inter", 12)
 )
 
 # 'Result' text
@@ -125,7 +122,7 @@ mainFrameCanvas.create_text(
     anchor="nw",
     text="Result: ",
     fill="#000000",
-    font=("Inter", 16 * -1)
+    font=("Inter", 12)
 )
 
 # '. . .' result text
@@ -135,16 +132,24 @@ res_display = mainFrameCanvas.create_text(
     text=result.get(),
     anchor="nw",
     fill="#000000",
-    font=("Inter Bold", 24 * -1)
+    font=("Inter Bold", 18)
 )
 
 """ Button and Entries """
+# Integral Symbol
+integral_symbol_image = PhotoImage(file=relative_to_assets("integrate_symbol.png"))
+integral_symbol = mainFrameCanvas.create_image(
+    49.0,
+    248.0,
+    image=integral_symbol_image
+)
+
+
 # Button: Indefinite Integral
 indef_integral_button_image = PhotoImage(file=relative_to_assets("indef_integral_button.png"))
 indef_integral_button = Button(
     image=indef_integral_button_image,
     borderwidth=0,
-    highlightthickness=0,
     command=lambda: (
         current_state.set("indefinite"),
         upper_limit_entry.place_forget(),
@@ -168,7 +173,6 @@ def_integral_button_image = PhotoImage(file=relative_to_assets("defin_integral_b
 def_integral_button = Button(
     image=def_integral_button_image,
     borderwidth=0,
-    highlightthickness=0,
     command=lambda: (
         current_state.set("definite"),
         mainFrameCanvas.coords(integral_symbol, 49, 248),
@@ -201,7 +205,6 @@ calculate_button_image = PhotoImage(file=relative_to_assets("calculate_button.pn
 calculate_button = Button(
     image=calculate_button_image,
     borderwidth=0,
-    highlightthickness=0,
     command=lambda: calculate_integral(),
     relief="flat"
 )
@@ -210,14 +213,6 @@ calculate_button.place(
     y=322.0,
     width=397.0,
     height=45.0
-)
-
-# Integral Symbol
-integral_symbol_image = PhotoImage(file=relative_to_assets("integrate_symbol.png"))
-integral_symbol = mainFrameCanvas.create_image(
-    49.0,
-    248.0,
-    image=integral_symbol_image
 )
 
 # Upper Limit Entry
@@ -231,7 +226,6 @@ upper_limit_entry = Entry(
     bd=0,
     bg="#FFFFFF",
     fg="#000716",
-    highlightthickness=0,
     textvariable=b,
     font="Inter, 10"
 )
@@ -253,7 +247,6 @@ lower_limit_entry = Entry(
     bd=0,
     bg="#FFFFFF",
     fg="#000716",
-    highlightthickness=0,
     textvariable=a,
     font="Inter, 10"
 )
@@ -275,7 +268,6 @@ num_entry = Entry(
     bd=0,
     bg="#FFFFFF",
     fg="#000716",
-    highlightthickness=0,
     textvariable=q_input,
     font="Inter, 12"
 )
