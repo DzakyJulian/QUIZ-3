@@ -89,7 +89,7 @@ mainFrameCanvas.place(x=0, y=0)
 mainFrameCanvas.create_text(
     23.0,
     22.0,
-    anchor="nw",
+    anchor="nw", # text-align
     text="Hello, Integralian!",
     fill="#000000",
     font=("Consolas Bold", 12),
